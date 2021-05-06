@@ -3,7 +3,6 @@ import './App.css';
 import axios from 'axios'
 import secrets from './secrets'
 import SingleMoviePreview from './SingleMoviePreview'
-import SingleMovie from './SingleMovie'
 import film from './film.png'
 
 
@@ -11,34 +10,41 @@ function App() {
   // Variables for the movies returned by our search, the search term, and the profile for the single movie to view
   const [movies, setMovies] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [singleMovie, setSingleMovie] = useState(null)
-
-
+  const [nominations, setNominations] = useState([])
+  const [user, setUser] = useState(window.localStorage.getItem('shopifyUser') ?
+    window.localStorage.getItem('shopifyUser') :
+    ""
+  )
+  const [userVal, setUserVal] = useState('')
+  // const [loggedIn, setLoggedIn] = useState(user ? true : false)
 
   useEffect(() => {
+    const storage = window.localStorage;
+    if (user.length) storage.setItem('shopifyUser', user)
+    else storage.removeItem('shopifyUser')
+    console.log(user)
+  }, [user])
+  
+  
+  
+  useEffect(() => {
     const handleChange = async () => {
-      setSingleMovie(null)
-      const searchStr = `https://api.themoviedb.org/3/search/movie?api_key=${secrets.apiKey}&language=en-US&query=${searchTerm}&include_adult=false`
-      const {data} = await axios.get(searchStr) 
-      const res = data.results.reduce((accumulator, mov) => {
-        if (mov.original_language === 'en') { // only saves needed information
-          accumulator.push({
-            id: mov.id,
-            title: mov.title,
-            poster: mov.poster_path,
-            overview: mov.overview,
-            popularity: mov.popularity,
-            releaseDate: mov.release_date ? mov.release_date.slice(0,4) : null
-        })
+      try {
+        const searchStr = `http://www.omdbapi.com/?apikey=${secrets.apiKey}&type=movie&page=1&s=${searchTerm}`
+        const {data} = await axios.get(searchStr) 
+        if (data.Response === 'True') {
+          console.log(data.Search)
+          setMovies(data.Search)
+        }
+
+      } catch (error) {
+        console.log('Error: ', error)
       }
-        return accumulator
-      }, [])
-      res.sort((a,b) => b.popularity - a.popularity) // sorts by most popular
-      setMovies(res)
     }
     if (searchTerm.length) handleChange()
     else setMovies([]) // Resets to empty when no search term present
   }, [searchTerm])
+
 
 
   return (
@@ -74,19 +80,39 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)} // Handled with useEffect
           />
       </form>
-      {singleMovie ? (
-        < SingleMovie 
-          movie={singleMovie}
-          setMovie={setSingleMovie}
-        />
-        ) : (
-        movies.map((movie, idx) => (
+          <div>
+            {user.length ? `Signed in as ${user}` : 'Currently guest'}
+          </div>
+          {user.length ? (
+            <button type='button' onClick={()=> {
+              setUser('')
+            }}
+            >Sign out</button>
+
+          ) : (
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault()
+                setUser(userVal)
+              }}
+              >
+            <input 
+              type='text'
+              placeholder="Enter your name"
+              value={userVal}
+              onChange={(e) => setUserVal(e.target.value)}
+            />
+            <button type='submit'>Sign In</button>
+          </form>
+
+          )
+
+          }
+      {movies.map((movie, idx) => (
         <SingleMoviePreview
           movie={movie}
           idx={idx}
-          setSingleMovie={setSingleMovie}
-          movies={movies}
-       />)))}
+       />))}
     </div>
   );
 }
