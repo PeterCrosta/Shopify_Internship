@@ -4,6 +4,7 @@ import axios from 'axios'
 import secrets from './secrets'
 import SingleMoviePreview from './SingleMoviePreview'
 import film from './film.png'
+import Dropdown from './Dropdown'
 
 
 function App() {
@@ -17,11 +18,14 @@ function App() {
   const [nominations, setNominations] = useState(window.localStorage.getItem(storageKey) ? 
     JSON.parse(window.localStorage.getItem(storageKey)) :
     [])
+  const [finished, setFinished] = useState(false)
 
   useEffect(() => {
     console.log(nominations)
     const storage = window.localStorage
     storage.setItem(storageKey, JSON.stringify(nominations))
+    if (nominations.length === 5) setFinished(true)
+    else setFinished(false)
   }, [nominations])
   
   useEffect(() => {
@@ -32,6 +36,8 @@ function App() {
         if (data.Response === 'True') {
           console.log(data.Search)
           setMovies(data.Search)
+        } else if (data.Error === "Movie not found!") {
+          setMovies([])
         }
 
       } catch (error) {
@@ -77,6 +83,10 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)} // Handled with useEffect
           />
       </form>
+      <Dropdown 
+              nominations={nominations}
+              setNominations={setNominations}
+            />
 
       {movies.map((movie, idx) => (
         <SingleMoviePreview
@@ -84,6 +94,7 @@ function App() {
           idx={idx}
           setNominations={setNominations}
           nominations={nominations}
+          finished={finished}
        />))}
     </div>
   );

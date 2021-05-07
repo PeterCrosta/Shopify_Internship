@@ -1,6 +1,6 @@
 function SingleMoviePreview(props) {
     const {Title, Poster, imdbID} = props.movie
-    const {idx, setNominations, nominations} = props
+    const {idx, setNominations, nominations, finished} = props
     return (
       <div 
         key={idx} 
@@ -20,10 +20,10 @@ function SingleMoviePreview(props) {
             className="titlePreview"
           >{Title}</h3>
           {nominations.find(el => el.imdbID === imdbID) ? (
-            
             <button
             type='button'
             className="addNominationButton"
+            // disabled={nominations.length === 5}
             onClick={() => {
               const i = nominations.findIndex(el => {
                 return el.imdbID === imdbID
@@ -35,6 +35,7 @@ function SingleMoviePreview(props) {
             <button 
               type='button' 
               className="addNominationButton"
+              disabled={finished}
               onClick={() => {
                 console.log(props.movie)
                 setNominations([...nominations,props.movie])
