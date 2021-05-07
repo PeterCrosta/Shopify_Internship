@@ -11,20 +11,7 @@ function App() {
   const [movies, setMovies] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [nominations, setNominations] = useState([])
-  const [user, setUser] = useState(window.localStorage.getItem('shopifyUser') ?
-    window.localStorage.getItem('shopifyUser') :
-    ""
-  )
-  const [userVal, setUserVal] = useState('')
-  // const [loggedIn, setLoggedIn] = useState(user ? true : false)
 
-  useEffect(() => {
-    const storage = window.localStorage;
-    if (user.length) storage.setItem('shopifyUser', user)
-    else storage.removeItem('shopifyUser')
-    console.log(user)
-  }, [user])
-  
   
   
   useEffect(() => {
@@ -80,34 +67,7 @@ function App() {
           onChange={(e) => setSearchTerm(e.target.value)} // Handled with useEffect
           />
       </form>
-          <div>
-            {user.length ? `Signed in as ${user}` : 'Currently guest'}
-          </div>
-          {user.length ? (
-            <button type='button' onClick={()=> {
-              setUser('')
-            }}
-            >Sign out</button>
 
-          ) : (
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault()
-                setUser(userVal)
-              }}
-              >
-            <input 
-              type='text'
-              placeholder="Enter your name"
-              value={userVal}
-              onChange={(e) => setUserVal(e.target.value)}
-            />
-            <button type='submit'>Sign In</button>
-          </form>
-
-          )
-
-          }
       {movies.map((movie, idx) => (
         <SingleMoviePreview
           movie={movie}
