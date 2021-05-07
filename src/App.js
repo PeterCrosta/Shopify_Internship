@@ -7,12 +7,22 @@ import film from './film.png'
 
 
 function App() {
+  const storageKey = 'shopifyNominations'
+  //JSON.stringify()
+  //JSON.parse()
+
   // Variables for the movies returned by our search, the search term, and the profile for the single movie to view
   const [movies, setMovies] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [nominations, setNominations] = useState([])
+  const [nominations, setNominations] = useState(window.localStorage.getItem(storageKey) ? 
+    JSON.parse(window.localStorage.getItem(storageKey)) :
+    [])
 
-  
+  useEffect(() => {
+    console.log(nominations)
+    const storage = window.localStorage
+    storage.setItem(storageKey, JSON.stringify(nominations))
+  }, [nominations])
   
   useEffect(() => {
     const handleChange = async () => {
@@ -72,6 +82,8 @@ function App() {
         <SingleMoviePreview
           movie={movie}
           idx={idx}
+          setNominations={setNominations}
+          nominations={nominations}
        />))}
     </div>
   );
